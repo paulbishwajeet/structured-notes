@@ -56,6 +56,16 @@ aws configure
 
 Follow the prompts to enter your credentials and default region.
 
+### A Note on AWS Credentials
+
+You will not find any `AWS_SECRET_ACCESS_KEY` or `AWS_ACCESS_KEY_ID` credentials stored in this project's files. This is a deliberate security measure and follows AWS best practices.
+
+Here’s how the application gets the necessary permissions:
+
+1.  **For Local Development (Using the SAM CLI):** When you run commands like `sam deploy` from your local machine, the AWS SAM CLI uses the credentials you have configured in your development environment, typically from the `~/.aws/credentials` file.
+
+2.  **When Deployed in AWS:** The `template.yaml` file defines an IAM Role for the Lambda function. This role grants the function temporary, secure credentials to interact with other AWS services like DynamoDB. You do not need to manage any keys in the deployed application.
+
 ## Running Locally (Frontend & Mock API)
 
 For local development and testing, you can run a mock API server.
