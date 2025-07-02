@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Structured Notes Portfolio Management Backend
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 128
+  Api:
+    Cors:
+      AllowMethods: "'POST,OPTIONS'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+      AllowOrigin: "'*'"
+
+Resources:
+  StructuredNotesTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      TableName: StructuredNotes
+      PrimaryKey:
+        Name: id
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  NotesApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambdaHandler
+      Runtime: nodejs20.x
+      CodeUri: backend/notes-api/
+      Policies:
+        - DynamoDBCrudPolicy: # Grants CRUD permissions to the DynamoDB table
+            TableName: !Ref StructuredNotesTable
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref StructuredNotesTable
+      Events:
+        CreateNote:
+          Type: Api
+          Properties:
+            Path: /notes
+            Method: post
+
+Outputs:
+  NotesApi: # You can use this name to refer to the API Gateway URL
+    Description: "API Gateway endpoint URL for the Notes API"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/notes"
