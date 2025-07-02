@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const NoteEntryForm = () => {
+const NoteEntryForm = ({ setNotes }) => {
   const [noteDetails, setNoteDetails] = useState({
     noteName: '',
     underlyingAsset: '',
@@ -40,6 +40,7 @@ const NoteEntryForm = () => {
   };
 
   const [projection, setProjection] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const calculateProjection = (details) => {
     // MVP: Simulate a basic projection based on entered details
@@ -93,6 +94,10 @@ const NoteEntryForm = () => {
 
       const result = await response.json();
       console.log('Note saved successfully:', result);
+      
+      // Update the notes list in the parent component
+      setNotes(prevNotes => [...prevNotes, result.note]);
+
       const newProjection = calculateProjection(noteDetails);
       setProjection(newProjection);
 
@@ -243,7 +248,7 @@ const NoteEntryForm = () => {
         <div className="md:col-span-2 flex justify-center space-x-4">
           <button
             type="submit"
-            className="bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline transition-colors"
+            className="bg-gray-500 hover:bg-gray-600 text-gray-900 font-bold py-2 px-6 rounded-lg focus:outline-none focus:shadow-outline transition-colors"
           >
             Add Note & View Projection
           </button>
@@ -280,7 +285,7 @@ const NoteEntryForm = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {projection.details.map((item, index) => (
+                  {projection.details.slice(0, isExpanded ? projection.details.length : 5).map((item, index) => (
                     <tr key={index} className="border-t border-gray-600">
                       <td className="py-2 px-4 text-gray-300 text-sm">{item.date}</td>
                       <td className="py-2 px-4 text-gray-300 text-sm">${item.estimatedCoupon}</td>
@@ -289,6 +294,16 @@ const NoteEntryForm = () => {
                   ))}
                 </tbody>
               </table>
+              {projection.details.length > 5 && (
+                <div className="text-center mt-4">
+                  <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="text-gray-400 hover:text-white focus:outline-none"
+                  >
+                    {isExpanded ? 'Show Less' : `Show ${projection.details.length - 5} More...`}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}

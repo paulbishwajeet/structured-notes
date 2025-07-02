@@ -37,11 +37,16 @@ Resources:
         Variables:
           TABLE_NAME: !Ref StructuredNotesTable
       Events:
-        CreateNote:
+        PostNote:
           Type: Api
           Properties:
             Path: /notes
             Method: post
+        GetNotes:
+          Type: Api
+          Properties:
+            Path: /notes
+            Method: get
 
 Outputs:
   NotesApi: # You can use this name to refer to the API Gateway URL
